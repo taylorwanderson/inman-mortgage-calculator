@@ -1,371 +1,97 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mortgage Buying Power Calculator</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<div id="bp_calc" style="font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size: 16px; color: #1a1a1a; max-width: 680px; margin: 0 auto; padding: 2rem 1.5rem;">
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: 16px;
-    color: #1a1a1a;
-    background: #ffffff;
-    padding: 0;
-  }
+<h2 style="font-size: 20px; font-weight: 600; margin: 0 0 0.35rem; color: #111;">How much home can a buyer really afford now?</h2>
+<p style="font-size: 14px; color: #666; margin: 0 0 1.75rem; line-height: 1.5;">Enter the monthly payment you can comfortably afford and see how rising interest rates shrink your buying power.</p>
 
-  .calc-wrap {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-  }
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 1.5rem;">
 
-  h2 {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 0.35rem;
-    color: #111;
-  }
-
-  .subtitle {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 1.75rem;
-    line-height: 1.5;
-  }
-
-  .field-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 1.5rem;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .field label {
-    font-size: 12px;
-    font-weight: 500;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .input-wrap {
-    display: flex;
-    align-items: center;
-    border: 1px solid #d0d0d0;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #fff;
-    transition: border-color 0.15s;
-  }
-
-  .input-wrap:focus-within {
-    border-color: #378add;
-    box-shadow: 0 0 0 3px rgba(55, 138, 221, 0.12);
-  }
-
-  .input-wrap .adorn {
-    padding: 0 10px;
-    font-size: 14px;
-    color: #888;
-    background: #f7f7f7;
-    border-right: 1px solid #d0d0d0;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-  }
-
-  .input-wrap .adorn.suffix {
-    border-right: none;
-    border-left: 1px solid #d0d0d0;
-  }
-
-  .input-wrap input {
-    border: none;
-    outline: none;
-    background: transparent;
-    padding: 0 10px;
-    height: 38px;
-    font-size: 14px;
-    width: 100%;
-    color: #111;
-    -moz-appearance: textfield;
-  }
-
-  .input-wrap input::-webkit-inner-spin-button,
-  .input-wrap input::-webkit-outer-spin-button { -webkit-appearance: none; }
-
-  .rate-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 1.75rem;
-  }
-
-  .rate-field label {
-    font-size: 12px;
-    font-weight: 500;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    display: block;
-    margin-bottom: 5px;
-  }
-
-  .divider {
-    border: none;
-    border-top: 1px solid #e8e8e8;
-    margin: 1.5rem 0;
-  }
-
-  /* Results */
-  .results-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 1.25rem;
-  }
-
-  .rate-card {
-    background: #f7f8f9;
-    border-radius: 10px;
-    padding: 1rem 1.1rem;
-  }
-
-  .rate-card .card-rate {
-    font-size: 12px;
-    color: #888;
-    margin-bottom: 4px;
-  }
-
-  .rate-card .card-home {
-    font-size: 22px;
-    font-weight: 600;
-    color: #111;
-    margin-bottom: 2px;
-  }
-
-  .rate-card .card-loan {
-    font-size: 13px;
-    color: #888;
-  }
-
-  .loss-banner {
-    border-radius: 10px;
-    padding: 1rem 1.25rem;
-    background: #fff0ea;
-    border: 1px solid #f5c4b3;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 1.5rem;
-  }
-
-  .loss-banner .loss-label {
-    font-size: 13px;
-    color: #993c1d;
-  }
-
-  .loss-banner .loss-num {
-    font-size: 22px;
-    font-weight: 600;
-    color: #993c1d;
-  }
-
-  /* Bar chart */
-  .bar-section { margin-bottom: 1rem; }
-
-  .bar-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-
-  .bar-row .bar-label {
-    font-size: 13px;
-    color: #555;
-    min-width: 60px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .bar-outer {
-    flex: 1;
-    height: 32px;
-    background: #f0f1f2;
-    border-radius: 5px;
-    overflow: hidden;
-  }
-
-  .bar-inner {
-    height: 100%;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    padding-left: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    transition: width 0.4s ease;
-    white-space: nowrap;
-    overflow: hidden;
-    min-width: 0;
-  }
-
-  .bar-a { background: #378add; color: #0c447c; }
-  .bar-b { background: #f0997b; color: #712b13; }
-
-  .footnote {
-    font-size: 12px;
-    color: #aaa;
-    margin-top: 1rem;
-    line-height: 1.5;
-  }
-
-  @media (max-width: 520px) {
-    .field-group { grid-template-columns: 1fr; }
-    .rate-row { grid-template-columns: 1fr; }
-    .results-grid { grid-template-columns: 1fr; }
-    .loss-banner { flex-direction: column; gap: 4px; }
-  }
-</style>
-</head>
-<body>
-<div class="calc-wrap">
-
-  <h2>How much home can your payment buy?</h2>
-  <p class="subtitle">Enter the monthly payment you can comfortably afford and see how rising interest rates shrink your buying power.</p>
-
-  <div class="field-group">
-    <div class="field">
-      <label>Monthly payment</label>
-      <div class="input-wrap">
-        <span class="adorn">$</span>
-        <input type="number" id="payment" value="2000" min="100" step="50" oninput="calc()">
-      </div>
-    </div>
-    <div class="field">
-      <label>Loan term</label>
-      <div class="input-wrap">
-        <input type="number" id="term" value="30" min="5" max="30" step="5" oninput="calc()">
-        <span class="adorn suffix">yrs</span>
-      </div>
-    </div>
-    <div class="field">
-      <label>Down payment</label>
-      <div class="input-wrap">
-        <span class="adorn">$</span>
-        <input type="number" id="down" value="20000" min="0" step="1000" oninput="calc()">
-      </div>
+  <div style="display: flex; flex-direction: column; gap: 5px;">
+    <label style="font-size: 12px; font-weight: 500; color: #666; text-transform: uppercase; letter-spacing: 0.04em;">Monthly payment</label>
+    <div style="display: flex; align-items: center; border: 1px solid #d0d0d0; border-radius: 8px; overflow: hidden; background: #fff;">
+      <span style="padding: 0 10px; font-size: 14px; color: #888; background: #f7f7f7; border-right: 1px solid #d0d0d0; height: 38px; display: flex; align-items: center;">$</span>
+      <input data-bp="payment" type="number" value="2000" min="100" step="50" style="border: none; outline: none; background: transparent; padding: 0 10px; height: 38px; font-size: 14px; width: 100%; color: #111;">
     </div>
   </div>
 
-  <div class="rate-row">
-    <div class="rate-field">
-      <label>Rate A — lower rate</label>
-      <div class="input-wrap">
-        <input type="number" id="rateA" value="5.98" min="0.5" max="20" step="0.25" oninput="calc()">
-        <span class="adorn suffix">%</span>
-      </div>
-    </div>
-    <div class="rate-field">
-      <label>Rate B — higher rate</label>
-      <div class="input-wrap">
-        <input type="number" id="rateB" value="7.0" min="0.5" max="20" step="0.25" oninput="calc()">
-        <span class="adorn suffix">%</span>
-      </div>
+  <div style="display: flex; flex-direction: column; gap: 5px;">
+    <label style="font-size: 12px; font-weight: 500; color: #666; text-transform: uppercase; letter-spacing: 0.04em;">Loan term</label>
+    <div style="display: flex; align-items: center; border: 1px solid #d0d0d0; border-radius: 8px; overflow: hidden; background: #fff;">
+      <input data-bp="term" type="number" value="30" min="5" max="30" step="5" style="border: none; outline: none; background: transparent; padding: 0 10px; height: 38px; font-size: 14px; width: 100%; color: #111;">
+      <span style="padding: 0 10px; font-size: 14px; color: #888; background: #f7f7f7; border-left: 1px solid #d0d0d0; height: 38px; display: flex; align-items: center;">yrs</span>
     </div>
   </div>
 
-  <hr class="divider">
-
-  <div class="results-grid">
-    <div class="rate-card">
-      <div class="card-rate">At <span id="labelA">5.98</span>% you can afford</div>
-      <div class="card-home" id="homeA">—</div>
-      <div class="card-loan">Loan amount: <span id="loanA">—</span></div>
-    </div>
-    <div class="rate-card">
-      <div class="card-rate">At <span id="labelB">7.00</span>% you can afford</div>
-      <div class="card-home" id="homeB">—</div>
-      <div class="card-loan">Loan amount: <span id="loanB">—</span></div>
+  <div style="display: flex; flex-direction: column; gap: 5px;">
+    <label style="font-size: 12px; font-weight: 500; color: #666; text-transform: uppercase; letter-spacing: 0.04em;">Down payment</label>
+    <div style="display: flex; align-items: center; border: 1px solid #d0d0d0; border-radius: 8px; overflow: hidden; background: #fff;">
+      <span style="padding: 0 10px; font-size: 14px; color: #888; background: #f7f7f7; border-right: 1px solid #d0d0d0; height: 38px; display: flex; align-items: center;">$</span>
+      <input data-bp="down" type="number" value="20000" min="0" step="1000" style="border: none; outline: none; background: transparent; padding: 0 10px; height: 38px; font-size: 14px; width: 100%; color: #111;">
     </div>
   </div>
-
-  <div class="loss-banner">
-    <span class="loss-label">Lost buying power at the higher rate</span>
-    <span class="loss-num" id="lossDollar">—</span>
-  </div>
-
-  <div class="bar-section">
-    <div class="bar-row">
-      <div class="bar-label" id="barLabelA">5.98%</div>
-      <div class="bar-outer"><div class="bar-inner bar-a" id="barA" style="width:100%"><span id="barTextA"></span></div></div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label" id="barLabelB">7.00%</div>
-      <div class="bar-outer"><div class="bar-inner bar-b" id="barB" style="width:60%"><span id="barTextB"></span></div></div>
-    </div>
-  </div>
-
-  <p class="footnote">* Based on principal &amp; interest only. Does not include property taxes, homeowner's insurance, PMI, or HOA fees. Consult a licensed lender for a full payment estimate.</p>
 
 </div>
 
-<script>
-  function fmt(n) {
-    return '$' + Math.round(n).toLocaleString('en-US');
-  }
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.75rem;">
 
-  function loanFromPayment(payment, annualRate, years) {
-    if (annualRate <= 0) return payment * years * 12;
-    var r = annualRate / 100 / 12;
-    var n = years * 12;
-    return payment * (1 - Math.pow(1 + r, -n)) / r;
-  }
+  <div style="display: flex; flex-direction: column; gap: 5px;">
+    <label style="font-size: 12px; font-weight: 500; color: #666; text-transform: uppercase; letter-spacing: 0.04em;">Rate A — lower rate</label>
+    <div style="display: flex; align-items: center; border: 1px solid #d0d0d0; border-radius: 8px; overflow: hidden; background: #fff;">
+      <input data-bp="rateA" type="number" value="5.98" min="0.5" max="20" step="0.25" style="border: none; outline: none; background: transparent; padding: 0 10px; height: 38px; font-size: 14px; width: 100%; color: #111;">
+      <span style="padding: 0 10px; font-size: 14px; color: #888; background: #f7f7f7; border-left: 1px solid #d0d0d0; height: 38px; display: flex; align-items: center;">%</span>
+    </div>
+  </div>
 
-  function calc() {
-    var payment = parseFloat(document.getElementById('payment').value) || 0;
-    var term    = parseFloat(document.getElementById('term').value)    || 30;
-    var down    = parseFloat(document.getElementById('down').value)    || 0;
-    var rA      = parseFloat(document.getElementById('rateA').value)   || 0;
-    var rB      = parseFloat(document.getElementById('rateB').value)   || 0;
+  <div style="display: flex; flex-direction: column; gap: 5px;">
+    <label style="font-size: 12px; font-weight: 500; color: #666; text-transform: uppercase; letter-spacing: 0.04em;">Rate B — higher rate</label>
+    <div style="display: flex; align-items: center; border: 1px solid #d0d0d0; border-radius: 8px; overflow: hidden; background: #fff;">
+      <input data-bp="rateB" type="number" value="7.0" min="0.5" max="20" step="0.25" style="border: none; outline: none; background: transparent; padding: 0 10px; height: 38px; font-size: 14px; width: 100%; color: #111;">
+      <span style="padding: 0 10px; font-size: 14px; color: #888; background: #f7f7f7; border-left: 1px solid #d0d0d0; height: 38px; display: flex; align-items: center;">%</span>
+    </div>
+  </div>
 
-    var loanA = loanFromPayment(payment, rA, term);
-    var loanB = loanFromPayment(payment, rB, term);
-    var homeA = loanA + down;
-    var homeB = loanB + down;
-    var diff  = homeA - homeB;
+</div>
 
-    document.getElementById('labelA').textContent    = rA.toFixed(2);
-    document.getElementById('labelB').textContent    = rB.toFixed(2);
-    document.getElementById('homeA').textContent     = fmt(homeA);
-    document.getElementById('homeB').textContent     = fmt(homeB);
-    document.getElementById('loanA').textContent     = fmt(loanA);
-    document.getElementById('loanB').textContent     = fmt(loanB);
-    document.getElementById('lossDollar').textContent = fmt(Math.abs(diff)) + (diff >= 0 ? ' less home' : ' more home');
+<hr style="border: none; border-top: 1px solid #e8e8e8; margin: 0 0 1.5rem;">
 
-    document.getElementById('barLabelA').textContent = rA.toFixed(2) + '%';
-    document.getElementById('barLabelB').textContent = rB.toFixed(2) + '%';
-    document.getElementById('barTextA').textContent  = fmt(homeA);
-    document.getElementById('barTextB').textContent  = fmt(homeB);
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.25rem;">
 
-    var maxHome = Math.max(homeA, homeB, 1);
-    document.getElementById('barA').style.width = Math.round((homeA / maxHome) * 100) + '%';
-    document.getElementById('barB').style.width = Math.round((homeB / maxHome) * 100) + '%';
-  }
+  <div style="background: #f7f8f9; border-radius: 10px; padding: 1rem 1.1rem;">
+    <div style="font-size: 12px; color: #888; margin-bottom: 4px;">At <span data-bp="labelA">5.98</span>% you can afford</div>
+    <div data-bp="homeA" style="font-size: 22px; font-weight: 600; color: #111; margin-bottom: 2px;">—</div>
+    <div style="font-size: 13px; color: #888;">Loan amount: <span data-bp="loanA">—</span></div>
+  </div>
 
-  calc();
-</script>
-</body>
-</html>
+  <div style="background: #f7f8f9; border-radius: 10px; padding: 1rem 1.1rem;">
+    <div style="font-size: 12px; color: #888; margin-bottom: 4px;">At <span data-bp="labelB">7.00</span>% you can afford</div>
+    <div data-bp="homeB" style="font-size: 22px; font-weight: 600; color: #111; margin-bottom: 2px;">—</div>
+    <div style="font-size: 13px; color: #888;">Loan amount: <span data-bp="loanB">—</span></div>
+  </div>
+
+</div>
+
+<div style="border-radius: 10px; padding: 1rem 1.25rem; background: #fff0ea; border: 1px solid #f5c4b3; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem;">
+  <span style="font-size: 13px; color: #993c1d;">Lost buying power at the higher rate</span>
+  <span data-bp="loss" style="font-size: 22px; font-weight: 600; color: #993c1d;">—</span>
+</div>
+
+<div style="margin-bottom: 1rem;">
+
+  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+    <div data-bp="barLabelA" style="font-size: 13px; color: #555; min-width: 60px; text-align: right; flex-shrink: 0;">5.98%</div>
+    <div style="flex: 1; height: 32px; background: #f0f1f2; border-radius: 5px; overflow: hidden;">
+      <div data-bp="barA" style="width: 100%; height: 100%; border-radius: 5px; background: #378add; display: flex; align-items: center; padding-left: 12px; font-size: 12px; font-weight: 600; color: #0c447c; transition: width 0.4s ease; white-space: nowrap; overflow: hidden;"></div>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+    <div data-bp="barLabelB" style="font-size: 13px; color: #555; min-width: 60px; text-align: right; flex-shrink: 0;">7.00%</div>
+    <div style="flex: 1; height: 32px; background: #f0f1f2; border-radius: 5px; overflow: hidden;">
+      <div data-bp="barB" style="width: 60%; height: 100%; border-radius: 5px; background: #f0997b; display: flex; align-items: center; padding-left: 12px; font-size: 12px; font-weight: 600; color: #712b13; transition: width 0.4s ease; white-space: nowrap; overflow: hidden;"></div>
+    </div>
+  </div>
+
+</div>
+
+<p style="font-size: 12px; color: #aaa; margin-top: 1rem; line-height: 1.5;">* Based on principal &amp; interest only. Does not include property taxes, homeowner's insurance, PMI, or HOA fees. Consult a licensed lender for a full payment estimate.</p>
+
+</div>
